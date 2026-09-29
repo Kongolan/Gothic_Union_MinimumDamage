@@ -2,6 +2,10 @@
 #define __G2A
 #define GOTHIC_NAMESPACE Gothic_II_Addon
 
+// Zwingend notwendig, damit die Gothic API oCNpc und oSDamageDescriptor voll auswertet:
+#define ENGINE_O_NPC
+#define ENGINE_O_DAMAGE
+
 // 2. Gothic API (oCNpc, zoptions, parser etc. sind jetzt erfolgreich geladen!)
 #include <ZenGin/zGothicAPI.h>
 
