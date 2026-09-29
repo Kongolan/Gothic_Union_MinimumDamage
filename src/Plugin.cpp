@@ -1,13 +1,14 @@
-// 1. Definition der genutzten Engine-Version (MUSS vor den Includes stehen)
+// 1. Zwingend erforderlich: Der Gothic API mitteilen, welche Engine wir kompilieren
 #define GOTHIC_NAMESPACE Gothic_II_Addon
 
-// 2. Offizieller Header der Gothic API (Klassen wie oCNpc, zoptions)
+// 2. Offizieller Header der Gothic API (Beinhaltet zoptions, oCNpc, etc.)
 #include <ZenGin/zGothicAPI.h>
 
-// 3. Offizieller Header der Union API (Modding-Makros wie HOOK)
-#include <union-api.h>
+// 3. Offizielles Modul der Union API für das Hook-System (Existiert nachweislich im Union-Ordner)
+#include <Union/Hook.h>
 
-namespace GOTHIC_ENGINE {
+// 4. Wir öffnen den exakten Namensraum, den die Gothic API durch unser #define generiert hat
+namespace Gothic_II_Addon {
 
     // Eindeutiger Name für die Hook-Variable und die neue Funktion
     HOOK Hook_Union_MinDamage_OnDamage_Hit PATCH(&oCNpc::OnDamage_Hit, &Union_MinDamage_OnDamage_Hit);
@@ -20,7 +21,9 @@ namespace GOTHIC_ENGINE {
         if (settingValue == 0) { 
             int bonus = 0;
             if (desc.pNpcAttacker) {
+                // Waffentyp prüfen: 5 = Bogen, 6 = Armbrust
                 bool isRanged = (desc.enuModeWeapon == NPC_WEAPON_BOW || desc.enuModeWeapon == NPC_WEAPON_CBOW);
+                
                 if (isRanged) {
                     bonus = (desc.pNpcAttacker->attribute[NPC_ATR_DEXTERITY] / 10) - 1;
                 } else {
@@ -28,6 +31,7 @@ namespace GOTHIC_ENGINE {
                 }
             }
             targetMinDamage = 5 + bonus;
+            
             if (targetMinDamage < 0) {
                 targetMinDamage = 0; 
             }
@@ -35,6 +39,7 @@ namespace GOTHIC_ENGINE {
             targetMinDamage = settingValue - 1;
         }
 
+        // Temporäres Überschreiben der Daedalus-Konstante
         zCPar_Symbol* sym = parser->GetSymbol("NPC_MINIMAL_DAMAGE");
         int oldMinDamage = 5;
         if (sym) {
@@ -42,9 +47,10 @@ namespace GOTHIC_ENGINE {
             sym->single_intdata = targetMinDamage;
         }
 
-        // Aufruf der originalen Engine-Funktion über unseren eindeutigen Hook-Namen
+        // Originale Schadensberechnung aufrufen
         Hook_Union_MinDamage_OnDamage_Hit(_this, vtable, desc);
 
+        // Konstante sofort wiederherstellen
         if (sym) {
             sym->single_intdata = oldMinDamage;
         }
