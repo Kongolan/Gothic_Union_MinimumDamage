@@ -1,37 +1,48 @@
-// 1. Zwingend: Dem Compiler mitteilen, dass wir das Addon-Modul laden wollen
-#define __G2A
-#define GOTHIC_NAMESPACE Gothic_II_Addon
-
-// Zwingend notwendig, damit die Gothic API oCNpc und oSDamageDescriptor voll auswertet:
-#define ENGINE_O_NPC
-#define ENGINE_O_DAMAGE
-
-// 2. Gothic API (oCNpc, zoptions, parser etc. sind jetzt erfolgreich geladen!)
+#include <Union/Hook.h>
 #include <ZenGin/zGothicAPI.h>
 
-// 3. Spezifische Engine-Header explizit einbinden, damit oCNpc und oSDamageDescriptor vollständig definiert sind
-#include <ZenGin/Gothic_II_Addon/API/oNpc.h>
-#include <ZenGin/Gothic_II_Addon/API/oDamage.h>
+// --- GOTHIC 1 ---
+#ifdef __G1
+#define GOTHIC_NAMESPACE Gothic_I
+#define ENGINE Engine_G1
+#endif
 
-// 4. Union API erst einbinden, wenn alle Engine-Klassen voll bekannt sind, damit das HOOK-Makro greifen kann
-#include <Union/Hook.h>
+// --- GOTHIC 1.08k ---
+#ifdef __G1A
+#define GOTHIC_NAMESPACE Gothic_I_Addon
+#define ENGINE Engine_G1_Addon
+#endif
 
-namespace Gothic_II_Addon {
+// --- GOTHIC 2 CLASSIC ---
+#ifdef __G2
+#define GOTHIC_NAMESPACE Gothic_II_Classic
+#define ENGINE Engine_G2
+#endif
 
-    // Eindeutiger Name für die Hook-Variable und die neue Funktion
+// --- GOTHIC 2 ADDON (Nacht des Raben) ---
+#ifdef __G2A
+#define GOTHIC_NAMESPACE Gothic_II_Addon
+#define ENGINE Engine_G2_Addon
+#endif
+
+// Wenn eine gültige Engine aktiv ist, registrieren wir den Hook im korrekten Namespace
+#if defined(GOTHIC_NAMESPACE) && defined(ENGINE)
+
+namespace GOTHIC_NAMESPACE {
+
+    // Unser Hook greift nun versionssicher über das offizielle HOOKSPACE-Makro
+    HOOKSPACE(GOTHIC_NAMESPACE, GetGameVersion() == ENGINE);
+
     HOOK Hook_Union_MinDamage_OnDamage_Hit PATCH(&oCNpc::OnDamage_Hit, &Union_MinDamage_OnDamage_Hit);
 
     void __fastcall Union_MinDamage_OnDamage_Hit(oCNpc* _this, void* vtable, oSDamageDescriptor& desc) {
-        // Die INI-Sektion "UNION_MINIMUM_DAMAGE" mit deinem festen Key "MinDamageValue"
         int settingValue = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "MinDamageValue", 0);
         int targetMinDamage = 5;
 
         if (settingValue == 0) { 
             int bonus = 0;
             if (desc.pNpcAttacker) {
-                // Waffentyp prüfen: 5 = Bogen, 6 = Armbrust
                 bool isRanged = (desc.enuModeWeapon == NPC_WEAPON_BOW || desc.enuModeWeapon == NPC_WEAPON_CBOW);
-                
                 if (isRanged) {
                     bonus = (desc.pNpcAttacker->attribute[NPC_ATR_DEXTERITY] / 10) - 1;
                 } else {
@@ -39,7 +50,6 @@ namespace Gothic_II_Addon {
                 }
             }
             targetMinDamage = 5 + bonus;
-            
             if (targetMinDamage < 0) {
                 targetMinDamage = 0; 
             }
@@ -47,7 +57,6 @@ namespace Gothic_II_Addon {
             targetMinDamage = settingValue - 1;
         }
 
-        // Temporäres Überschreiben der Daedalus-Konstante (NPC_MINIMAL_DAMAGE)
         zCPar_Symbol* sym = parser->GetSymbol("NPC_MINIMAL_DAMAGE");
         int oldMinDamage = 5;
         if (sym) {
@@ -55,12 +64,17 @@ namespace Gothic_II_Addon {
             sym->single_intdata = targetMinDamage;
         }
 
-        // Originale Schadensberechnung aufrufen
         Hook_Union_MinDamage_OnDamage_Hit(_this, vtable, desc);
 
-        // Konstante sofort wiederherstellen
         if (sym) {
             sym->single_intdata = oldMinDamage;
         }
     }
 }
+
+#undef GOTHIC_NAMESPACE
+#undef ENGINE
+#endif
+
+// Globaler Fallback für Union-Initialisierung
+HOOKSPACE(Global, true);
