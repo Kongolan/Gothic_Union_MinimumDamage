@@ -111,6 +111,6 @@ INSTANCE MENUITEM_UNION_MINDAMAGE_ENTRY(C_MENU_ITEM)
     dimx           = 8192;
     dimy           = 750;
     onSelAction[0] = SEL_ACTION_STARTMENU;
-    onSelAction_S[0] = "MENU_OPT_UNION_MINDAMAGE"; 
+    onSelAction_S[0] = "Union_MinimumDamage_Menu:MENU_OPT_UNION_MINDAMAGE";
     flags          = IT_CHROMAKEYED | IT_TRANSPARENT | IT_SELECTABLE | IT_TXT_CENTER;
 };
