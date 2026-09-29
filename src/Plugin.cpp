@@ -30,11 +30,17 @@
 
 namespace GOTHIC_NAMESPACE {
 
-    // Eigene Logging-Funktion fuer den Bildschirm (nur wenn DebugMode=1 in INI)
+    // Perfektionierte Logging-Funktion (Nutzt die "Item erhalten"-Textausgabe im Spiel!)
     void LogDebug(const ZString& text) {
         int debugMode = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "DebugMode", 0);
-        if (debugMode > 0 && screen) {
-            screen->PrintScreen(200, 200, text, ZenDef(FONT_Screen, FONT_ScreenSmall, FONT_ScreenSmall, FONT_ScreenSmall), RGBA_ORANGE);
+        if (debugMode > 0) {
+            // Schreibt es zur Sicherheit auch ins zspy / Union Log
+            zerr.Message("[MinDamage] " + text);
+            
+            // Schreibt es animiert auf den Ingame-Bildschirm
+            if (ogame && ogame->GetTextView()) {
+                ogame->GetTextView()->Printwin(text);
+            }
         }
     }
 
