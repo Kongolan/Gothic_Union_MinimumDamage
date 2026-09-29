@@ -30,9 +30,9 @@
 
 namespace GOTHIC_NAMESPACE {
 
-    // Hilfsfunktion: Gibt Text nur dann auf den Bildschirm aus, wenn Debug=1 in der Gothic.ini steht
+    // Eigene Logging-Funktion fuer den Bildschirm (nur wenn DebugMode=1 in INI)
     void LogDebug(const ZString& text) {
-        int debugMode = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "Debug", 0);
+        int debugMode = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "DebugMode", 0);
         if (debugMode > 0 && screen) {
             screen->PrintScreen(200, 200, text, ZenDef(FONT_Screen, FONT_ScreenSmall, FONT_ScreenSmall, FONT_ScreenSmall), RGBA_ORANGE);
         }
@@ -46,15 +46,16 @@ namespace GOTHIC_NAMESPACE {
     void __fastcall Union_MinDamage_OnDamage_Hit(oCNpc* _this, void* vtable, oSDamageDescriptor& desc) {
         LogDebug("=== OnDamage_Hit aufgerufen ===");
 
-        // 1. INI-Wert auslesen
+        // 1. INI-Werte auslesen (Standard: Dynamisch = 1, Wert = 5)
+        int isDynamic    = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "DynamicMode", 1);
         int settingValue = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "MinDamageValue", 0);
         LogDebug("INI MinDamageValue: " + ZString(settingValue));
 
         int targetMinDamage = 0;
 
-        // 2. Weiche für Dynamisch vs. Fest
-        if (settingValue < 0) {
-            LogDebug("Modus: DYNAMISCH aktiv.");
+        // 2. Kristallklare Logik
+        if (isDynamic == 1) {
+            LogDebug("Modus: DYNAMISCH");
             
             int bonus = 0;
             if (desc.pNpcAttacker) {
@@ -72,7 +73,6 @@ namespace GOTHIC_NAMESPACE {
             } else {
                 LogDebug("KEIN Angreifer (nullptr)!");
             }
-
             targetMinDamage = 5 + bonus;
             if (targetMinDamage < 0) {
                 targetMinDamage = 0;
@@ -81,10 +81,13 @@ namespace GOTHIC_NAMESPACE {
                 LogDebug("TargetMinDamage (dyn): " + ZString(targetMinDamage));
             }
         } else {
-            LogDebug("Modus: FESTER WERT aktiv.");
+            // Fester Wert - greift direkt auf den INI-Wert zu (der exakt dem Index entspricht!)
+            LogDebug("Modus: FEST");
             targetMinDamage = settingValue;
             LogDebug("TargetMinDamage (fest): " + ZString(targetMinDamage));
         }
+
+        LogDebug("Ziel-Schaden: " + ZString(targetMinDamage));
 
         // 3. Daedalus-Symbol ansprechen
         zCPar_Symbol* sym = parser->GetSymbol("NPC_MINIMAL_DAMAGE");
