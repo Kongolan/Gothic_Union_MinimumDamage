@@ -15,13 +15,11 @@ INSTANCE MENU_OPT_UNION_MINDAMAGE(C_MENU)
     alpha          = 254;
     flags          = MENU_EXCLUSIVE;
     
-    // Dein eigenes, sicheres Array
     items[0]       = "MENUITEM_UNION_MINDAMAGE_HEADLINE";
     items[1]       = "MENUITEM_UNION_MINDAMAGE_MODE";
     items[2]       = "MENUITEM_UNION_MINDAMAGE_MODE_CHOICE";
     items[3]       = "MENUITEM_UNION_MINDAMAGE_VAL";
     items[4]       = "MENUITEM_UNION_MINDAMAGE_VAL_CHOICE";
-    
     items[14]      = "MENUITEM_UNION_MINDAMAGE_BACK";
 };
 
@@ -79,7 +77,7 @@ INSTANCE MENUITEM_UNION_MINDAMAGE_VAL(C_MENU_ITEM)
 INSTANCE MENUITEM_UNION_MINDAMAGE_VAL_CHOICE(C_MENU_ITEM)
 {
     type           = MENU_ITEM_CHOICEBOX;
-    text[0]        = "0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50";
+    text[0]        = "0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20";
     fontName       = MENU_FONT_SMALL;
     posx           = 5000;
     posy           = 5000; 
@@ -103,28 +101,16 @@ INSTANCE MENUITEM_UNION_MINDAMAGE_BACK(C_MENU_ITEM)
 };
 
 // ==========================================
-// 3. DER EINSPRUNG-BUTTON INS UNION-MENÜ
+// 3. DER EINSPRUNG-BUTTON (Wird von C++ injiziert!)
 // ==========================================
 INSTANCE MENUITEM_UNION_MINDAMAGE_ENTRY(C_MENU_ITEM)
 {
     text[0]        = "Minimum Damage Optionen"; 
     text[1]        = "Modus und Werte fuer den Mindestschaden konfigurieren.";
     type           = MENU_ITEM_BUTTON;
-    posx           = 1000;
-    posy           = 1000; 
-    dimx           = 6192;
+    dimx           = 8192;
     dimy           = 750;
     onSelAction[0] = SEL_ACTION_STARTMENU;
-    // Der korrekte Index ist 0, damit das Zielmenü beim Klick geladen wird
-    onEventAction[0] = "MENU_OPT_UNION_MINDAMAGE"; 
+    onSelAction_S[0] = "MENU_OPT_UNION_MINDAMAGE"; 
     flags          = IT_CHROMAKEYED | IT_TRANSPARENT | IT_SELECTABLE | IT_TXT_CENTER;
-};
-
-// ==========================================
-// 4. INJIZIERUNG IN DAS OFFIZIELLE UNION-MENÜ
-// ==========================================
-INSTANCE MENU_OPT_UNION(C_MENU)
-{
-    // Wir nutzen Index 49, um ganz sicher im Limit des C_MENU Arrays zu bleiben
-    items[49] = "MENUITEM_UNION_MINDAMAGE_ENTRY";
 };
