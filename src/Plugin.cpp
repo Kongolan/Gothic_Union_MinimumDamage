@@ -2,11 +2,11 @@
 #define __G2A
 #define GOTHIC_NAMESPACE Gothic_II_Addon
 
-// 2. Offizieller, nachgewiesener Haupteinstieg der Gothic API (lädt oCNpc, zoptions etc.)
+// 2. Gothic API (oCNpc, zoptions, parser etc. sind jetzt erfolgreich geladen!)
 #include <ZenGin/zGothicAPI.h>
 
-// 3. Offizieller, nachgewiesener Haupt-Header der Union API (lädt das HOOK Makro)
-#include <Union/Union.h>
+// 3. Union API (Wir laden gezielt nur das Hook-Modul, anstatt nach einer Sammeldatei zu suchen)
+#include <Union/Hook.h>
 
 namespace Gothic_II_Addon {
 
