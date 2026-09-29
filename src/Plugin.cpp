@@ -1,11 +1,11 @@
-// 1. Zwingend: Dem Compiler sagen, dass wir für Gothic 2 Addon kompilieren (WICHTIG FÜR G2A.h!)
+// 1. Zwingend: Dem Compiler mitteilen, dass wir das Addon-Modul laden wollen
 #define __G2A
 #define GOTHIC_NAMESPACE Gothic_II_Addon
 
-// 2. Offizieller Engine-Header für Gothic 2 Addon (Lädt oCNpc, zoptions etc.)
-#include <Gothic_II_Addon/G2A.h>
+// 2. Offizieller, nachgewiesener Haupteinstieg der Gothic API (lädt oCNpc, zoptions etc.)
+#include <ZenGin/zGothicAPI.h>
 
-// 3. Offizieller Haupt-Header der Union API (Lädt das HOOK Makro)
+// 3. Offizieller, nachgewiesener Haupt-Header der Union API (lädt das HOOK Makro)
 #include <Union/Union.h>
 
 namespace Gothic_II_Addon {
