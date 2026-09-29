@@ -5,7 +5,10 @@
 // 2. Gothic API (oCNpc, zoptions, parser etc. sind jetzt erfolgreich geladen!)
 #include <ZenGin/zGothicAPI.h>
 
-// 3. Union API (Wir laden gezielt nur das Hook-Modul, anstatt nach einer Sammeldatei zu suchen)
+// 3. WICHTIG: Den spezifischen Header für Schadensstrukturen laden (behebt den "undefined type" Fehler)
+#include <Gothic_II_Addon/API/oDamage.h>
+
+// 4. Offizieller Header der Union API für das Hook-System (definiert das HOOK-Makro)
 #include <Union/Hook.h>
 
 namespace Gothic_II_Addon {
