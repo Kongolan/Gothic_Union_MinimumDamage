@@ -20,19 +20,27 @@ if(NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
     message(WARNING "Building for 64-bit. Gothic plugins should be 32-bit (x86).")
 endif()
 
-# Fetch Official Union API (lädt Gothic API automatisch mit herunter)
 include(FetchContent)
+
+# 1. Gothic API (Die Engine, z.B. oCNpc) herunterladen
 FetchContent_Declare(
-  union-api
+  gothic_api
+  GIT_REPOSITORY https://gitlab.com/union-framework/gothic-api.git
+  GIT_TAG main
+)
+FetchContent_MakeAvailable(gothic_api)
+
+# 2. Union API (Das Modding-Framework, z.B. HOOK) herunterladen
+FetchContent_Declare(
+  union_api
   GIT_REPOSITORY https://gitlab.com/union-framework/union-api.git
   GIT_TAG main
 )
-FetchContent_MakeAvailable(union-api)
+FetchContent_MakeAvailable(union_api)
 
 add_library(Union_MinimumDamage SHARED src/Plugin.cpp)
 
-# Verknüpft unsere Mod mit der API (setzt Include-Pfade jetzt vollautomatisch!)
-target_link_libraries(Union_MinimumDamage PRIVATE union_api_lib)
+# WICHTIG: Beide Bibliotheken an unser Plugin binden!
+target_link_libraries(Union_MinimumDamage PRIVATE gothic_api union_api_lib)
 
-# Sorgt dafür, dass am Ende eine .dll ohne Präfix entsteht
 set_target_properties(Union_MinimumDamage PROPERTIES PREFIX "" SUFFIX ".dll")
