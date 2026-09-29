@@ -5,8 +5,8 @@
 // 2. Gothic API (oCNpc, zoptions, parser etc. sind jetzt erfolgreich geladen!)
 #include <ZenGin/zGothicAPI.h>
 
-// 3. WICHTIG: Den spezifischen Header für Schadensstrukturen laden (behebt den "undefined type" Fehler)
-#include <Gothic_II_Addon/API/oDamage.h>
+// 3. Korrekter Pfad zur Schadensstruktur im ZenGin-Verzeichnis
+#include <ZenGin/Gothic_II_Addon/API/oDamage.h>
 
 // 4. Offizieller Header der Union API für das Hook-System (definiert das HOOK-Makro)
 #include <Union/Hook.h>
@@ -17,7 +17,7 @@ namespace Gothic_II_Addon {
     HOOK Hook_Union_MinDamage_OnDamage_Hit PATCH(&oCNpc::OnDamage_Hit, &Union_MinDamage_OnDamage_Hit);
 
     void __fastcall Union_MinDamage_OnDamage_Hit(oCNpc* _this, void* vtable, oSDamageDescriptor& desc) {
-        // Die INI-Sektion "UNION_MINIMUM_DAMAGE" auslesen
+        // Die INI-Sektion "UNION_MINIMUM_DAMAGE" mit deinem korrekten Key "MinDamageValue"
         int settingValue = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "MinDamageValue", 0);
         int targetMinDamage = 5;
 
