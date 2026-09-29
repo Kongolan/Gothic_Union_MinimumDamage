@@ -2,14 +2,14 @@
 #define __G2A
 #define GOTHIC_NAMESPACE Gothic_II_Addon
 
-// 2. Gothic API (oCNpc, zoptions, parser etc. sind jetzt erfolgreich geladen!)
+// 2. Union API zuerst einbinden, damit das HOOK-Makro global bekannt ist
+#include <Union/Hook.h>
+
+// 3. Gothic API (oCNpc, zoptions, parser etc. sind jetzt erfolgreich geladen!)
 #include <ZenGin/zGothicAPI.h>
 
-// 3. Korrekter Pfad zur Schadensstruktur im ZenGin-Verzeichnis
+// 4. Korrekter Pfad zur Schadensstruktur im ZenGin-Verzeichnis
 #include <ZenGin/Gothic_II_Addon/API/oDamage.h>
-
-// 4. Offizieller Header der Union API für das Hook-System (definiert das HOOK-Makro)
-#include <Union/Hook.h>
 
 namespace Gothic_II_Addon {
 
