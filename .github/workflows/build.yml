@@ -22,8 +22,7 @@ jobs:
         version: 1.11.1
 
     - name: Configure CMake
-      # Hier wurde das Flag -DCMAKE_POLICY_VERSION_MINIMUM=3.5 hinzugefügt
-      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl
 
     - name: Build Plugin
       run: cmake --build build --config Release
