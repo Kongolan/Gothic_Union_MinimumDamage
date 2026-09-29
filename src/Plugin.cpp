@@ -1,13 +1,13 @@
-// 1. Zwingend erforderlich: Der Gothic API mitteilen, welche Engine wir kompilieren
+// 1. Zwingend: Dem Compiler sagen, dass wir für Gothic 2 Addon kompilieren (WICHTIG FÜR G2A.h!)
+#define __G2A
 #define GOTHIC_NAMESPACE Gothic_II_Addon
 
-// 2. Offizieller Header der Gothic API (Beinhaltet zoptions, oCNpc, etc.)
-#include <ZenGin/zGothicAPI.h>
+// 2. Offizieller Engine-Header für Gothic 2 Addon (Lädt oCNpc, zoptions etc.)
+#include <Gothic_II_Addon/G2A.h>
 
-// 3. Offizielles Modul der Union API für das Hook-System (Existiert nachweislich im Union-Ordner)
-#include <Union/Hook.h>
+// 3. Offizieller Haupt-Header der Union API (Lädt das HOOK Makro)
+#include <Union/Union.h>
 
-// 4. Wir öffnen den exakten Namensraum, den die Gothic API durch unser #define generiert hat
 namespace Gothic_II_Addon {
 
     // Eindeutiger Name für die Hook-Variable und die neue Funktion
@@ -39,7 +39,7 @@ namespace Gothic_II_Addon {
             targetMinDamage = settingValue - 1;
         }
 
-        // Temporäres Überschreiben der Daedalus-Konstante
+        // Temporäres Überschreiben der Daedalus-Konstante (NPC_MINIMAL_DAMAGE)
         zCPar_Symbol* sym = parser->GetSymbol("NPC_MINIMAL_DAMAGE");
         int oldMinDamage = 5;
         if (sym) {

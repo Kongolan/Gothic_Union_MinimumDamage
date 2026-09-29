@@ -24,6 +24,14 @@ jobs:
     - name: Configure CMake
       run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl
 
+    - name: Verify API Headers
+      run: |
+        echo "--- GOTHIC API TREE ---"
+        find build/_deps/gothic_api-src -name "*.h"
+        echo "--- UNION API TREE ---"
+        find build/_deps/union_api-src -name "*.h"
+      shell: bash
+
     - name: Build Plugin
       run: cmake --build build --config Release
 
