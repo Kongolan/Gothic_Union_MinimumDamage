@@ -31,8 +31,21 @@ FetchContent_MakeAvailable(union_api)
 
 add_library(Union_MinimumDamage SHARED src/Plugin.cpp)
 
-# Sag unserem Plugin explizit, wo die Header der API liegen
-target_include_directories(Union_MinimumDamage PRIVATE ${union_api_SOURCE_DIR}/union-api/Headers)
+# --- FOOLPROOF HEADER SEARCH ---
+# Sucht dynamisch im gesamten heruntergeladenen API-Ordner nach der "UnionAfx.h"
+file(GLOB_RECURSE UNION_AFX_FILES "${union_api_SOURCE_DIR}/*UnionAfx.h")
+if(UNION_AFX_FILES)
+    # Nimm den ersten Treffer und extrahiere den Ordnerpfad
+    list(GET UNION_AFX_FILES 0 UNION_AFX_FILE)
+    get_filename_component(UNION_AFX_DIR "${UNION_AFX_FILE}" DIRECTORY)
+    
+    # Übergib diesen exakten Ordner an unseren Compiler
+    target_include_directories(Union_MinimumDamage PRIVATE "${UNION_AFX_DIR}")
+    message(STATUS "SUCCESS: Auto-detected Union headers at: ${UNION_AFX_DIR}")
+else()
+    message(FATAL_ERROR "CRITICAL: Konnte UnionAfx.h im API-Repository nicht finden!")
+endif()
+# -------------------------------
 
 # Link against the union-api
 target_link_libraries(Union_MinimumDamage PRIVATE union_api_lib)
