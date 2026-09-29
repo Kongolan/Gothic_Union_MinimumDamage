@@ -4,7 +4,7 @@ META
     MergeMode = true;
 };
 
-INSTANCE MENUITEM_OPT_MINDAMAGE(C_MENU_ITEM_DEF)
+INSTANCE MENUITEM_OPT_UNION_MINDAMAGE(C_MENU_ITEM_DEF)
 {
     backpic     = MENU_ITEM_BACK_PIC;
     text[0]     = "Minimaler Schaden";
@@ -17,7 +17,7 @@ INSTANCE MENUITEM_OPT_MINDAMAGE(C_MENU_ITEM_DEF)
     flags       = flags | IT_EFFECTS_NEXT;
 };
 
-INSTANCE MENUITEM_OPT_MINDAMAGE_CHOICE(C_MENU_ITEM_DEF)
+INSTANCE MENUITEM_OPT_UNION_MINDAMAGE_CHOICE(C_MENU_ITEM_DEF)
 {
     backpic     = MENU_ITEM_BACK_PIC;
     type        = MENU_ITEM_CHOICEBOX;
@@ -27,14 +27,17 @@ INSTANCE MENUITEM_OPT_MINDAMAGE_CHOICE(C_MENU_ITEM_DEF)
     posY        = 6000; 
     dimX        = MENU_SLIDER_DX;
     dimY        = MENU_SLIDER_DY;
-    onChgSetOption = "MinDamageValue";
-    onChgSetOptionSection = "ZMODMINDAMAGE";
+    
+    // Die INI-Einträge sind jetzt absolut eindeutig
+    onChgSetOption = "Value";
+    onChgSetOptionSection = "UNION_MINIMUM_DAMAGE";
+    
     flags       = flags & ~IT_SELECTABLE;
     flags       = flags | IT_TXT_CENTER;
 };
 
 INSTANCE MENU_OPT_GAME(C_MENU_DEF)
 {
-    items[60] = "MENUITEM_OPT_MINDAMAGE";
-    items[61] = "MENUITEM_OPT_MINDAMAGE_CHOICE";
+    items[60] = "MENUITEM_OPT_UNION_MINDAMAGE";
+    items[61] = "MENUITEM_OPT_UNION_MINDAMAGE_CHOICE";
 };

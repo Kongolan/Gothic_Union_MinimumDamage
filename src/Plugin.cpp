@@ -2,10 +2,12 @@
 
 namespace GOTHIC_ENGINE {
 
-    HOOK Hook_oCNpc_OnDamage_Hit PATCH(&oCNpc::OnDamage_Hit, &oCNpc_OnDamage_Hit_New);
+    // Eindeutiger Name für die Hook-Variable und die neue Funktion
+    HOOK Hook_Union_MinDamage_OnDamage_Hit PATCH(&oCNpc::OnDamage_Hit, &Union_MinDamage_OnDamage_Hit);
 
-    void __fastcall oCNpc_OnDamage_Hit_New(oCNpc* _this, void* vtable, oSDamageDescriptor& desc) {
-        int settingValue = zoptions->ReadInt("ZMODMINDAMAGE", "MinDamageValue", 0);
+    void __fastcall Union_MinDamage_OnDamage_Hit(oCNpc* _this, void* vtable, oSDamageDescriptor& desc) {
+        // Die INI-Sektion "UNION_MINIMUM_DAMAGE" ist bereits einzigartig genug, das können wir so lassen.
+        int settingValue = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "MinDamageValue", 0);
         int targetMinDamage = 5;
 
         if (settingValue == 0) { 
@@ -33,7 +35,8 @@ namespace GOTHIC_ENGINE {
             sym->single_intdata = targetMinDamage;
         }
 
-        Hook_oCNpc_OnDamage_Hit(_this, vtable, desc);
+        // Aufruf der originalen Engine-Funktion über unseren eindeutigen Hook-Namen
+        Hook_Union_MinDamage_OnDamage_Hit(_this, vtable, desc);
 
         if (sym) {
             sym->single_intdata = oldMinDamage;
