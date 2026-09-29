@@ -1,0 +1,9 @@
+[BEGINVDF]
+Comment=Union Minimum Damage Plugin
+BaseDir=.\ModRelease
+VDFName=.\Union_MinimumDamage.vdf
+[FILES]
+*.* -r
+[EXCLUDE]
+[INCLUDE]
+[ENDVDF]

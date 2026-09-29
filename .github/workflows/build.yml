@@ -42,8 +42,13 @@ jobs:
         cp src/Union_MinimumDamage_Menu.d ModRelease/System/Autorun/
       shell: bash
 
+    - name: Build VDF (Gothic Volume)
+      run: |
+        tools\GothicVDFS.exe -b Union_MinimumDamage.vm
+      shell: cmd
+
     - name: Upload Mod Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Union_MinimumDamage_Mod
-        path: ModRelease/
+        name: Union_MinimumDamage_VDF
+        path: Union_MinimumDamage.vdf
