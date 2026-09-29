@@ -30,14 +30,14 @@
 
 namespace GOTHIC_NAMESPACE {
 
-    // Perfektionierte Logging-Funktion (Nutzt die "Item erhalten"-Textausgabe im Spiel!)
+    // Eigene Logging-Funktion fuer den Bildschirm (nur wenn DebugMode=1 in INI)
     void LogDebug(const ZString& text) {
         int debugMode = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "DebugMode", 0);
         if (debugMode > 0) {
-            // Schreibt es zur Sicherheit auch ins zspy / Union Log
+            // Loggt unsichtbar in die zSpy Konsole mit
             zerr.Message("[MinDamage] " + text);
             
-            // Schreibt es animiert auf den Ingame-Bildschirm
+            // Nutzt die native Gothic-Textausgabe (wie "10 Erz erhalten"), damit es sicher lesbar aufploppt!
             if (ogame && ogame->GetTextView()) {
                 ogame->GetTextView()->Printwin(text);
             }
@@ -48,14 +48,16 @@ namespace GOTHIC_NAMESPACE {
     HOOKSPACE(GOTHIC_NAMESPACE, GetGameVersion() == ENGINE);
 
     // ==========================================================
-    // 1. SCHADENSBERECHNUNG
+    // 1. SCHADENSBERECHNUNG (Die absolute Wurzel!)
     // ==========================================================
-    HOOK Hook_Union_MinDamage_OnDamage_Hit PATCH(&oCNpc::OnDamage_Hit, &Union_MinDamage_OnDamage_Hit);
+    // Da oCNpc::OnDamage überladen ist, nutzen wir einen static_cast, um den 
+    // Pointer auf die exakte Signatur (mit oSDamageDescriptor) zu zwingen.
+    HOOK Hook_Union_MinDamage_OnDamage PATCH( static_cast<void(oCNpc::*)(oSDamageDescriptor&)>(&oCNpc::OnDamage), &Union_MinDamage_OnDamage );
 
-    void __fastcall Union_MinDamage_OnDamage_Hit(oCNpc* _this, void* vtable, oSDamageDescriptor& desc) {
-        LogDebug("=== OnDamage_Hit aufgerufen ===");
+    void __fastcall Union_MinDamage_OnDamage(oCNpc* _this, void* vtable, oSDamageDescriptor& desc) {
+        LogDebug("--- NEUER TREFFER (OnDamage Root) ---");
 
-        // 1. INI-Werte auslesen (Standard: Dynamisch = 1, Wert = 5)
+        // 1. INI-Werte auslesen (Standard: Dynamisch = 1, Wert = 0)
         int isDynamic    = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "DynamicMode", 1);
         int settingValue = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "MinDamageValue", 0);
         LogDebug("INI MinDamageValue: " + ZString(settingValue));
@@ -110,12 +112,12 @@ namespace GOTHIC_NAMESPACE {
             LogDebug("FEHLER: NPC_MINIMAL_DAMAGE nicht gefunden!");
         }
 
-        // 4. Originalen Code ausführen
+        // 4. Originale Schadensberechnung der Engine ausführen
         LogDebug("Führe originalen OnDamage_Hit aus...");
-        Hook_Union_MinDamage_OnDamage_Hit(_this, vtable, desc);
+        Hook_Union_MinDamage_OnDamage(_this, vtable, desc);
         LogDebug("Originale Routine beendet.");
 
-        // 5. Wiederherstellen
+        // 5. Symbol sofort wiederherstellen, damit andere Vanilla-Berechnungen ungestört bleiben
         if (sym) {
             sym->single_intdata = oldMinDamage;
             LogDebug("NPC_MINIMAL_DAMAGE wiederhergestellt: " + ZString(oldMinDamage));
