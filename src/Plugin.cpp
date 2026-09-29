@@ -42,38 +42,7 @@ namespace GOTHIC_NAMESPACE {
     HOOKSPACE(GOTHIC_NAMESPACE, GetGameVersion() == ENGINE);
 
     // ==========================================================
-    // 1. C++ API: DYNAMISCHE MENÜ-REGISTRIERUNG
-    // ==========================================================
-    HOOK Hook_zCMenu_Enter PATCH(&zCMenu::Enter, &Union_MinDamage_zCMenu_Enter);
-
-    void __fastcall Union_MinDamage_zCMenu_Enter(zCMenu* _this, void* vtable) {
-        // Wir fangen das Menü genau in der Millisekunde ab, in der es geöffnet wird
-        if (_this->name == "MENU_OPT_UNION") {
-            zCMenuItem* entryBtn = zCMenuItem::GetByName("Union_MinimumDamage_Menu:MENUITEM_UNION_MINDAMAGE_ENTRY");
-            
-            if (entryBtn) {
-                // Wir iterieren sicherheitshalber durch die C++ Liste, um den Button nicht doppelt zu laden
-                bool exists = false;
-                for (int i = 0; i < _this->m_listItems.GetNumInList(); i++) {
-                    if (_this->m_listItems[i] == entryBtn) {
-                        exists = true;
-                        break;
-                    }
-                }
-                
-                // Wenn er noch fehlt, injizieren wir ihn sauber über die Engine-API!
-                if (!exists) {
-                    _this->InsertItem(entryBtn);
-                }
-            }
-        }
-        
-        // Das Original-Menü weiterlaufen lassen
-        Hook_zCMenu_Enter(_this, vtable);
-    }
-
-    // ==========================================================
-    // 2. SCHADENSBERECHNUNG
+    // 1. SCHADENSBERECHNUNG
     // ==========================================================
     HOOK Hook_Union_MinDamage_OnDamage_Hit PATCH(&oCNpc::OnDamage_Hit, &Union_MinDamage_OnDamage_Hit);
 
