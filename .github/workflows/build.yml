@@ -1,0 +1,41 @@
+name: Build Gothic Union Plugin
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x86
+
+    - name: Setup Ninja
+      uses: ashutoshvarma/setup-ninja@master
+      with:
+        version: 1.11.1
+
+    - name: Configure CMake
+      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl
+
+    - name: Build Plugin
+      run: cmake --build build --config Release
+
+    - name: Prepare Mod Release Folder
+      run: |
+        mkdir -p ModRelease/System/Autorun
+        cp build/Union_MinimumDamage.dll ModRelease/System/Autorun/ || cp build/Release/Union_MinimumDamage.dll ModRelease/System/Autorun/
+        cp src/Union_MinimumDamage_Menu.d ModRelease/System/Autorun/
+      shell: bash
+
+    - name: Upload Mod Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Union_MinimumDamage_Mod
+        path: ModRelease/
