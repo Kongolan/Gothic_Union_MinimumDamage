@@ -1,4 +1,4 @@
-#include "UnionAfx.h"
+#include <Union/Union.h>
 
 namespace GOTHIC_ENGINE {
 

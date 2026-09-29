@@ -17,38 +17,22 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if(NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
-    message(WARNING "Building for 64-bit. Gothic plugins should be 32-bit (x86). Make sure your generator is configured correctly.")
+    message(WARNING "Building for 64-bit. Gothic plugins should be 32-bit (x86).")
 endif()
 
-# Fetch Official Union API
+# Fetch Official Union API (lädt Gothic API automatisch mit herunter)
 include(FetchContent)
 FetchContent_Declare(
-  union_api
+  union-api
   GIT_REPOSITORY https://gitlab.com/union-framework/union-api.git
   GIT_TAG main
 )
-FetchContent_MakeAvailable(union_api)
+FetchContent_MakeAvailable(union-api)
 
 add_library(Union_MinimumDamage SHARED src/Plugin.cpp)
 
-# --- FOOLPROOF HEADER SEARCH ---
-# Sucht dynamisch im gesamten heruntergeladenen API-Ordner nach der "UnionAfx.h"
-file(GLOB_RECURSE UNION_AFX_FILES "${union_api_SOURCE_DIR}/*UnionAfx.h")
-if(UNION_AFX_FILES)
-    # Nimm den ersten Treffer und extrahiere den Ordnerpfad
-    list(GET UNION_AFX_FILES 0 UNION_AFX_FILE)
-    get_filename_component(UNION_AFX_DIR "${UNION_AFX_FILE}" DIRECTORY)
-    
-    # Übergib diesen exakten Ordner an unseren Compiler
-    target_include_directories(Union_MinimumDamage PRIVATE "${UNION_AFX_DIR}")
-    message(STATUS "SUCCESS: Auto-detected Union headers at: ${UNION_AFX_DIR}")
-else()
-    message(FATAL_ERROR "CRITICAL: Konnte UnionAfx.h im API-Repository nicht finden!")
-endif()
-# -------------------------------
-
-# Link against the union-api
+# Verknüpft unsere Mod mit der API (setzt Include-Pfade jetzt vollautomatisch!)
 target_link_libraries(Union_MinimumDamage PRIVATE union_api_lib)
 
-# Ensure the output is named correctly for Gothic
+# Sorgt dafür, dass am Ende eine .dll ohne Präfix entsteht
 set_target_properties(Union_MinimumDamage PROPERTIES PREFIX "" SUFFIX ".dll")
