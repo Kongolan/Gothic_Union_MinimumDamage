@@ -5,7 +5,11 @@
 // 2. Gothic API (oCNpc, zoptions, parser etc. sind jetzt erfolgreich geladen!)
 #include <ZenGin/zGothicAPI.h>
 
-// 3. Union API zuerst einbinden, damit das HOOK-Makro global bekannt ist
+// 3. Spezifische Engine-Header explizit einbinden, damit oCNpc und oSDamageDescriptor vollständig definiert sind
+#include <ZenGin/Gothic_II_Addon/API/oNpc.h>
+#include <ZenGin/Gothic_II_Addon/API/oDamage.h>
+
+// 4. Union API erst einbinden, wenn alle Engine-Klassen voll bekannt sind, damit das HOOK-Makro greifen kann
 #include <Union/Hook.h>
 
 namespace Gothic_II_Addon {
@@ -14,7 +18,7 @@ namespace Gothic_II_Addon {
     HOOK Hook_Union_MinDamage_OnDamage_Hit PATCH(&oCNpc::OnDamage_Hit, &Union_MinDamage_OnDamage_Hit);
 
     void __fastcall Union_MinDamage_OnDamage_Hit(oCNpc* _this, void* vtable, oSDamageDescriptor& desc) {
-        // Die INI-Sektion "UNION_MINIMUM_DAMAGE" mit deinem korrekten Key "MinDamageValue"
+        // Die INI-Sektion "UNION_MINIMUM_DAMAGE" mit deinem festen Key "MinDamageValue"
         int settingValue = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "MinDamageValue", 0);
         int targetMinDamage = 5;
 
