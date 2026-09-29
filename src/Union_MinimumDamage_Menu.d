@@ -1,114 +1,128 @@
 META
 {
     Parser    = Menu;
-    After     = zUnionMenu.d; // Wartet, bis die Union-Basis geladen ist
-    Namespace = MinDamage;    // Setzt das saubere Präfix "MinDamage:"
+    After     = zUnionMenu.d;
+    Namespace = MinDamage;
 };
 
-// ==========================================
-// 1. DER AUTOMATISCHE EINSPRUNG-BUTTON
-// ==========================================
-// Durch "C_MENU_ITEM_UNION_DEF" fügt Union diesen Button vollautomatisch 
-// in das "Optionen -> Union" Menü ein! Kein C++ Hook mehr nötig!
+// ------ Constants ------
+const int Start_PY  = 1400;
+const int Title_PY  = 450;
+const int Menu_DY   = 550;
+
+// Text Layout
+const int Text_PX   = 400;  
+const int Text_SX   = 8000; 
+const int Text_SY   = 750;  
+const int Text_DY   = 120;  
+
+// Choice Layout
+const int Choice_PX = 6400; 
+const int Choice_SX = 1500; 
+const int Choice_SY = 350;  
+const int Choice_DY = 120;  
+
+var int CurrentMenuItem_PY;
+
+// ------ Prototypes & Bases ------
+// Das ist der Fix für das ITEM_BACK Problem! Es erbt von C_MENU (leer) und nutzt Unions Back-Button.
+prototype C_EMPTY_MENU_DEF(C_MENU)
+{
+    backpic    = MENU_BACK_PIC;
+    items[0]   = "";
+    items[100] = "Union_menuitem_back"; 
+    flags      = flags | MENU_SHOW_INFO;
+};
+
+instance C_MENU_ITEM_TEXT_BASE(C_MENU_ITEM_DEF)
+{
+    backpic        = MENU_ITEM_BACK_PIC;
+    posx           = Text_PX;
+    posy           = Start_PY;
+    dimx           = Text_SX;
+    dimy           = Text_SY;
+    flags          = flags | IT_EFFECTS_NEXT;
+    onselaction[0] = SEL_ACTION_UNDEF;
+};
+
+instance C_MENUITEM_CHOICE_BASE(C_MENU_ITEM_DEF)
+{
+    backpic  = MENU_CHOICE_BACK_PIC;
+    type     = MENU_ITEM_CHOICEBOX;
+    fontname = MENU_FONT_SMALL;
+    posx     = Choice_PX;
+    posy     = Start_PY + Choice_DY;
+    dimx     = Choice_SX;
+    dimy     = Choice_SY;
+    flags    = flags & ~IT_SELECTABLE;
+    flags    = flags | IT_TXT_CENTER;
+};
+
+// ------ Menu Entry ------
 INSTANCE MenuItem_Union_Auto_MinDamage(C_MENU_ITEM_UNION_DEF)
 {
     text[0]        = "Minimum Damage Optionen"; 
     text[1]        = "Modus und Werte fuer den Mindestschaden konfigurieren.";
     onSelAction[0] = SEL_ACTION_STARTMENU;
-    onSelAction_S[0] = "MinDamage:MENU_OPT_MINDAMAGE"; // Beachte das Namespace-Präfix!
+    onSelAction_S[0] = "MinDamage:Menu_Opt_MinDamage"; 
 };
 
-// ==========================================
-// 2. DEIN EIGENES MENÜ (Dynamisch befüllt)
-// ==========================================
-INSTANCE MENU_OPT_MINDAMAGE(C_MENU_DEF)
+// ------ Main Menu ------
+INSTANCE Menu_Opt_MinDamage(C_EMPTY_MENU_DEF)
 {
-    backpic        = MENU_BACK_PIC;
-    dimx           = 8192;
-    dimy           = 8192;
-    alpha          = 254;
-    flags          = MENU_EXCLUSIVE;
-    
-    // DER MAGISCHE BEFEHL: Sucht alle Items, die mit "MENUITEM_OPT_MINDAMAGE_" anfangen 
-    // und fügt sie automatisch ins Array ein. Keine Index-Crashes mehr!
     Menu_SearchItems("MinDamage:MENUITEM_OPT_MINDAMAGE_*");
 };
 
-// ==========================================
-// 3. DIE MENÜ-INHALTE
-// ==========================================
-
-INSTANCE MENUITEM_OPT_MINDAMAGE_01_HEADLINE(C_MENU_ITEM_DEF)
+// ------ Headline ------
+INSTANCE MenuItem_Opt_MinDamage_Headline(C_MENU_ITEM_DEF)
 {
-    text[0]        = "MINIMUM DAMAGE EINSTELLUNGEN";
-    type           = MENU_ITEM_TEXT;
-    posx           = 0;
-    posy           = 2000;
-    dimx           = 8100;
-    flags          = IT_CHROMAKEYED | IT_TRANSPARENT | IT_TXT_CENTER;
+    type    = MENU_ITEM_TEXT;
+    posx    = 0;
+    posy    = Title_PY;
+    dimx    = 8100;
+    flags   = flags & ~IT_SELECTABLE;
+    flags   = flags | IT_TXT_CENTER;
+    text[0] = "MINIMUM DAMAGE EINSTELLUNGEN";
 };
 
-INSTANCE MENUITEM_OPT_MINDAMAGE_02_MODE(C_MENU_ITEM_DEF)
+// ------ 1. Modus (Dynamisch vs Fest) ------
+INSTANCE MenuItem_Opt_MinDamage_01_Mode(C_MENU_ITEM)
 {
-    text[0]        = "Schadens-Modus";
-    text[1]        = "Dynamisch (nach Attributen) oder Fester Wert?";
-    posx           = 1000;
-    posy           = 4000;
-    dimx           = 3000;
-    dimy           = 750;
-    fontName       = MENU_FONT_SMALL;
-    flags          = IT_CHROMAKEYED | IT_TRANSPARENT | IT_SELECTABLE | IT_EFFECTS_NEXT;
+    CurrentMenuItem_PY = 1;
+    C_MENU_ITEM_TEXT_BASE();
+    posy += Menu_DY * CurrentMenuItem_PY + Text_DY;
+    
+    text[0] = "Schadens-Modus";
+    text[1] = "Dynamisch (nach Attributen) oder Fester Wert?";
 };
 
-INSTANCE MENUITEM_OPT_MINDAMAGE_03_MODE_CHOICE(C_MENU_ITEM_DEF)
+INSTANCE MenuItem_Opt_MinDamage_01_Mode_Choice(C_MENU_ITEM_DEF)
 {
-    type           = MENU_ITEM_CHOICEBOX;
-    text[0]        = "Fester Wert|Dynamisch";
-    fontName       = MENU_FONT_SMALL;
-    posx           = 5000;
-    posy           = 4000;
-    dimx           = MENU_SLIDER_DX;
-    dimy           = MENU_SLIDER_DY;
-    onChgSetOption = "DynamicMode";
-    onChgSetOptionSection = "UNION_MINIMUM_DAMAGE";
-    flags          = IT_CHROMAKEYED | IT_TRANSPARENT | IT_TXT_CENTER;
+    C_MENUITEM_CHOICE_BASE();
+    posy += Menu_DY * CurrentMenuItem_PY;
+    
+    onchgsetoption        = "DynamicMode";
+    onchgsetoptionsection = "UNION_MINIMUM_DAMAGE";
+    text[0]               = "Fester Wert|Dynamisch";
 };
 
-INSTANCE MENUITEM_OPT_MINDAMAGE_04_VAL(C_MENU_ITEM_DEF)
+// ------ 2. Fester Wert ------
+INSTANCE MenuItem_Opt_MinDamage_02_Val(C_MENU_ITEM)
 {
-    text[0]        = "Fester Mindestschaden";
-    text[1]        = "Greift nur, wenn Modus auf 'Fester Wert' steht.";
-    posx           = 1000;
-    posy           = 5000;
-    dimx           = 3000;
-    dimy           = 750;
-    fontName       = MENU_FONT_SMALL;
-    flags          = IT_CHROMAKEYED | IT_TRANSPARENT | IT_SELECTABLE | IT_EFFECTS_NEXT;
+    CurrentMenuItem_PY = 2;
+    C_MENU_ITEM_TEXT_BASE();
+    posy += Menu_DY * CurrentMenuItem_PY + Text_DY;
+    
+    text[0] = "Fester Mindestschaden";
+    text[1] = "Greift nur, wenn Modus auf 'Fester Wert' steht.";
 };
 
-INSTANCE MENUITEM_OPT_MINDAMAGE_05_VAL_CHOICE(C_MENU_ITEM_DEF)
+INSTANCE MenuItem_Opt_MinDamage_02_Val_Choice(C_MENU_ITEM_DEF)
 {
-    type           = MENU_ITEM_CHOICEBOX;
-    text[0]        = "0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20";
-    fontName       = MENU_FONT_SMALL;
-    posx           = 5000;
-    posy           = 5000; 
-    dimx           = MENU_SLIDER_DX;
-    dimy           = MENU_SLIDER_DY;
-    onChgSetOption = "MinDamageValue";
-    onChgSetOptionSection = "UNION_MINIMUM_DAMAGE";
-    flags          = IT_CHROMAKEYED | IT_TRANSPARENT | IT_TXT_CENTER;
-};
-
-INSTANCE MENUITEM_OPT_MINDAMAGE_99_BACK(C_MENU_ITEM_DEF)
-{
-    backpic        = MENU_ITEM_BACK_PIC;
-    text[0]        = "Zurueck";
-    type           = MENU_ITEM_BUTTON;
-    posx           = 1000; 
-    posy           = 8000; 
-    dimx           = 6192;
-    dimy           = 750;
-    onSelAction[0] = SEL_ACTION_BACK; 
-    flags          = IT_CHROMAKEYED | IT_TRANSPARENT | IT_SELECTABLE | IT_TXT_CENTER;
+    C_MENUITEM_CHOICE_BASE();
+    posy += Menu_DY * CurrentMenuItem_PY;
+    
+    onchgsetoption        = "MinDamageValue";
+    onchgsetoptionsection = "UNION_MINIMUM_DAMAGE";
+    text[0]               = "0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20";
 };
