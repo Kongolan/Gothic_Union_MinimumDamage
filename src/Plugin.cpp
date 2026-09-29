@@ -1,8 +1,10 @@
-// 1. Definieren, für welche Gothic-Version wir modden
+// 1. Definition der genutzten Engine-Version (MUSS vor den Includes stehen)
 #define GOTHIC_NAMESPACE Gothic_II_Addon
 
-// 2. Die Engine (oCNpc, zoptions) und das Framework (HOOK) einbinden
-#include <gothic_api.h>
+// 2. Offizieller Header der Gothic API (Klassen wie oCNpc, zoptions)
+#include <ZenGin/zGothicAPI.h>
+
+// 3. Offizieller Header der Union API (Modding-Makros wie HOOK)
 #include <union-api.h>
 
 namespace GOTHIC_ENGINE {
@@ -11,8 +13,8 @@ namespace GOTHIC_ENGINE {
     HOOK Hook_Union_MinDamage_OnDamage_Hit PATCH(&oCNpc::OnDamage_Hit, &Union_MinDamage_OnDamage_Hit);
 
     void __fastcall Union_MinDamage_OnDamage_Hit(oCNpc* _this, void* vtable, oSDamageDescriptor& desc) {
-        // Die INI-Sektion "UNION_MINIMUM_DAMAGE" ist bereits einzigartig genug, das können wir so lassen.
-        int settingValue = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "Value", 0);
+        // Die INI-Sektion "UNION_MINIMUM_DAMAGE" auslesen
+        int settingValue = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "MinDamageValue", 0);
         int targetMinDamage = 5;
 
         if (settingValue == 0) { 
