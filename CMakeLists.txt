@@ -31,6 +31,9 @@ FetchContent_MakeAvailable(union_api)
 
 add_library(Union_MinimumDamage SHARED src/Plugin.cpp)
 
+# Sag unserem Plugin explizit, wo die Header der API liegen
+target_include_directories(Union_MinimumDamage PRIVATE ${union_api_SOURCE_DIR}/union-api/Headers)
+
 # Link against the union-api
 target_link_libraries(Union_MinimumDamage PRIVATE union_api_lib)
 
