@@ -126,3 +126,24 @@ INSTANCE MenuItem_Opt_MinDamage_02_Val_Choice(C_MENU_ITEM_DEF)
     onchgsetoptionsection = "UNION_MINIMUM_DAMAGE";
     text[0]               = "0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20";
 };
+
+// ------ 3. Debug Modus ------
+INSTANCE MenuItem_Opt_MinDamage_03_Debug(C_MENU_ITEM)
+{
+    CurrentMenuItem_PY = 3;
+    C_MENU_ITEM_TEXT_BASE();
+    posy += Menu_DY * CurrentMenuItem_PY + Text_DY;
+    
+    text[0] = "Debug-Modus";
+    text[1] = "Gibt die Schadensberechnung live auf dem Bildschirm aus.";
+};
+
+INSTANCE MenuItem_Opt_MinDamage_03_Debug_Choice(C_MENU_ITEM_DEF)
+{
+    C_MENUITEM_CHOICE_BASE();
+    posy += Menu_DY * CurrentMenuItem_PY;
+    
+    onchgsetoption        = "DebugMode";
+    onchgsetoptionsection = "UNION_MINIMUM_DAMAGE";
+    text[0]               = "Aus|An"; // Index 0 = Aus, Index 1 = An
+};
