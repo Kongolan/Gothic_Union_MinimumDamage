@@ -32,7 +32,7 @@ FetchContent_MakeAvailable(union_api)
 add_library(Union_MinimumDamage SHARED src/Plugin.cpp)
 
 # Link against the union-api
-target_link_libraries(Union_MinimumDamage PRIVATE union-api)
+target_link_libraries(Union_MinimumDamage PRIVATE union_api_lib)
 
 # Ensure the output is named correctly for Gothic
 set_target_properties(Union_MinimumDamage PROPERTIES PREFIX "" SUFFIX ".dll")
