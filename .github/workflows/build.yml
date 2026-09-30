@@ -21,26 +21,25 @@ jobs:
       with:
         version: 1.11.1
 
-    - name: Configure CMake (Mit G2A Preset)
-      # Nutzt das im Screenshot dokumentierte Windows-Preset für Gothic 2 Addon
-      run: cmake --preset G2A-Release
+    - name: Configure CMake
+      # Wir zwingen den Compiler per CXX_FLAGS das Makro __G2A zu setzen!
+      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DCMAKE_CXX_FLAGS="/D__G2A"
 
     - name: Verify API Headers
       run: |
         echo "--- GOTHIC API TREE ---"
-        find out/build/G2A-Release/_deps/gothic_api-src -name "*.h" || echo "Pfad abweichend"
+        find build/_deps/gothic_api-src -name "*.h"
         echo "--- UNION API TREE ---"
-        find out/build/G2A-Release/_deps/union_api-src -name "*.h" || echo "Pfad abweichend"
+        find build/_deps/union_api-src -name "*.h"
       shell: bash
 
-    - name: Build Plugin (Mit G2A Preset)
-      run: cmake --build --preset G2A-Release
+    - name: Build Plugin
+      run: cmake --build build --config Release
 
     - name: Prepare Mod Release Folder
       run: |
         mkdir -p ModRelease/System/Autorun
-        # CMake Presets legen die kompilierte DLL standardmäßig im out/build/ Verzeichnis ab
-        cp out/build/G2A-Release/Union_MinimumDamage.dll ModRelease/System/Autorun/ || cp build/Union_MinimumDamage.dll ModRelease/System/Autorun/ || cp build/Release/Union_MinimumDamage.dll ModRelease/System/Autorun/
+        cp build/Union_MinimumDamage.dll ModRelease/System/Autorun/ || cp build/Release/Union_MinimumDamage.dll ModRelease/System/Autorun/
         cp src/Union_MinimumDamage_Menu.d ModRelease/System/Autorun/
       shell: bash
 
