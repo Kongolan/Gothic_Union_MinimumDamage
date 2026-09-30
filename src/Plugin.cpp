@@ -1,4 +1,4 @@
-#include <Union/Hook.h>
+#include <Union/Union.h>
 #include <ZenGin/zGothicAPI.h>
 
 // --- GOTHIC 1 ---
@@ -30,8 +30,8 @@
 
 namespace GOTHIC_NAMESPACE {
 
-    // Eigene Logging-Funktion fuer den Bildschirm (nur wenn DebugMode=1 in INI)
-    void LogDebug(const ZString& text) {
+    // Eigene Logging-Funktion (Nutzt jetzt das native zSTRING statt dem Wizard-Makro ZString)
+    void LogDebug(const zSTRING& text) {
         int debugMode = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "DebugMode", 0);
         if (debugMode > 0) {
             // Loggt unsichtbar in die zSpy Konsole mit
@@ -60,7 +60,7 @@ namespace GOTHIC_NAMESPACE {
         // 1. INI-Werte auslesen (Standard: Dynamisch = 1, Wert = 0)
         int isDynamic    = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "DynamicMode", 1);
         int settingValue = zoptions->ReadInt("UNION_MINIMUM_DAMAGE", "MinDamageValue", 0);
-        LogDebug("INI MinDamageValue: " + ZString(settingValue));
+        LogDebug("INI MinDamageValue: " + zSTRING(settingValue));
 
         int targetMinDamage = 0;
 
@@ -80,7 +80,7 @@ namespace GOTHIC_NAMESPACE {
                     LogDebug("Waffentyp: Nahkampf.");
                     bonus = (desc.pNpcAttacker->attribute[NPC_ATR_STRENGTH] / 10) - 1;
                 }
-                LogDebug("Attribut-Bonus: " + ZString(bonus));
+                LogDebug("Attribut-Bonus: " + zSTRING(bonus));
             } else {
                 LogDebug("KEIN Angreifer (nullptr)!");
             }
@@ -89,40 +89,40 @@ namespace GOTHIC_NAMESPACE {
                 targetMinDamage = 0;
                 LogDebug("TargetMinDamage < 0, auf 0 korrigiert.");
             } else {
-                LogDebug("TargetMinDamage (dyn): " + ZString(targetMinDamage));
+                LogDebug("TargetMinDamage (dyn): " + zSTRING(targetMinDamage));
             }
         } else {
-            // Fester Wert - greift direkt auf den INI-Wert zu (der exakt dem Index entspricht!)
+            // Fester Wert - greift direkt auf den INI-Wert zu
             LogDebug("Modus: FEST");
             targetMinDamage = settingValue;
-            LogDebug("TargetMinDamage (fest): " + ZString(targetMinDamage));
+            LogDebug("TargetMinDamage (fest): " + zSTRING(targetMinDamage));
         }
 
-        LogDebug("Ziel-Schaden: " + ZString(targetMinDamage));
+        LogDebug("Ziel-Schaden: " + zSTRING(targetMinDamage));
 
         // 3. Daedalus-Symbol ansprechen
         zCPar_Symbol* sym = parser->GetSymbol("NPC_MINIMAL_DAMAGE");
         int oldMinDamage = 5;
         if (sym) {
             oldMinDamage = sym->single_intdata;
-            LogDebug("Alter NPC_MINIMAL_DAMAGE: " + ZString(oldMinDamage));
+            LogDebug("Alter NPC_MINIMAL_DAMAGE: " + zSTRING(oldMinDamage));
             sym->single_intdata = targetMinDamage;
-            LogDebug("Überschrieben auf: " + ZString(targetMinDamage));
+            LogDebug("Überschrieben auf: " + zSTRING(targetMinDamage));
         } else {
             LogDebug("FEHLER: NPC_MINIMAL_DAMAGE nicht gefunden!");
         }
 
         // 4. Originale Schadensberechnung der Engine ausführen
-        LogDebug("Führe originalen OnDamage_Hit aus...");
+        LogDebug("Führe originalen OnDamage aus...");
         Hook_Union_MinDamage_OnDamage(_this, vtable, desc);
         LogDebug("Originale Routine beendet.");
 
-        // 5. Symbol sofort wiederherstellen, damit andere Vanilla-Berechnungen ungestört bleiben
+        // 5. Symbol sofort wiederherstellen
         if (sym) {
             sym->single_intdata = oldMinDamage;
-            LogDebug("NPC_MINIMAL_DAMAGE wiederhergestellt: " + ZString(oldMinDamage));
+            LogDebug("NPC_MINIMAL_DAMAGE wiederhergestellt: " + zSTRING(oldMinDamage));
         }
-        LogDebug("=== Ende OnDamage_Hit ===");
+        LogDebug("=== Ende OnDamage ===");
     }
 
     // ==========================================================
@@ -159,33 +159,19 @@ namespace GOTHIC_NAMESPACE {
     void Game_DefineExternals() {}
     void Game_ApplyOptions() {}
 
-    // Dies registriert die Mod tief in der Union-Engine. Ohne diesen Block lädt nichts!
-    #define AppDefault True
-    CApplication* lpApplication = !CHECK_THIS_ENGINE ? Null : CApplication::CreateRefApplication(
-        Enabled( AppDefault ) Game_Entry,
-        Enabled( AppDefault ) Game_Init,
-        Enabled( AppDefault ) Game_Exit,
-        Enabled( AppDefault ) Game_PreLoop,
-        Enabled( AppDefault ) Game_Loop,
-        Enabled( AppDefault ) Game_PostLoop,
-        Enabled( AppDefault ) Game_MenuLoop,
-        Enabled( AppDefault ) Game_SaveBegin,
-        Enabled( AppDefault ) Game_SaveEnd,
-        Enabled( AppDefault ) Game_LoadBegin_NewGame,
-        Enabled( AppDefault ) Game_LoadEnd_NewGame,
-        Enabled( AppDefault ) Game_LoadBegin_SaveGame,
-        Enabled( AppDefault ) Game_LoadEnd_SaveGame,
-        Enabled( AppDefault ) Game_LoadBegin_ChangeLevel,
-        Enabled( AppDefault ) Game_LoadEnd_ChangeLevel,
-        Enabled( AppDefault ) Game_LoadBegin_Trigger,
-        Enabled( AppDefault ) Game_LoadEnd_Trigger,
-        Enabled( AppDefault ) Game_Pause,
-        Enabled( AppDefault ) Game_Unpause,
-        Enabled( AppDefault ) Game_DefineExternals,
-        Enabled( AppDefault ) Game_ApplyOptions
-    );
+    // Registrierung als C++ Standard ohne Proprietäre Makros
+    CApplication* lpApplication = (GetGameVersion() == ENGINE) ? CApplication::CreateRefApplication(
+        Game_Entry, Game_Init, Game_Exit, Game_PreLoop, Game_Loop, Game_PostLoop, Game_MenuLoop,
+        Game_SaveBegin, Game_SaveEnd, Game_LoadBegin_NewGame, Game_LoadEnd_NewGame,
+        Game_LoadBegin_SaveGame, Game_LoadEnd_SaveGame, Game_LoadBegin_ChangeLevel,
+        Game_LoadEnd_ChangeLevel, Game_LoadBegin_Trigger, Game_LoadEnd_Trigger,
+        Game_Pause, Game_Unpause, Game_DefineExternals, Game_ApplyOptions
+    ) : nullptr;
 }
 
 #undef GOTHIC_NAMESPACE
 #undef ENGINE
 #endif
+
+// Globaler Fallback
+HOOKSPACE(Global, true);
