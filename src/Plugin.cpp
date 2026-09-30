@@ -127,7 +127,10 @@ namespace GOTHIC_NAMESPACE {
 
     void App_Init() {
         // Beim Start einmalig prüfen, ob wir den Debug-Text triggern können
-        LogDebug("[Union_MinimumDamage] Plugin geladen!");
+        zerr.Message("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        zerr.Message("!!! UNION MINIMUM DAMAGE DLL WURDE GELADEN !!!");
+        zerr.Message("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    }
     }
 
     cInitApp Documents_Init(App_Init);
