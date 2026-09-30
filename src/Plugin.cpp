@@ -1,4 +1,4 @@
-#include <Union/Union.h>
+#include <Union/Hook.h>
 #include <ZenGin/zGothicAPI.h>
 
 // --- GOTHIC 1 ---
@@ -10,7 +10,7 @@
 // --- GOTHIC 1.08k ---
 #ifdef __G1A
 #define GOTHIC_NAMESPACE Gothic_I_Addon
-#define ENGINE Engine_G1_Addon
+#define ENGINE Engine_G1A
 #endif
 
 // --- GOTHIC 2 CLASSIC ---
@@ -22,7 +22,7 @@
 // --- GOTHIC 2 ADDON (Nacht des Raben) ---
 #ifdef __G2A
 #define GOTHIC_NAMESPACE Gothic_II_Addon
-#define ENGINE Engine_G2_Addon
+#define ENGINE Engine_G2A
 #endif
 
 // Wenn eine gültige Engine aktiv ist, registrieren wir den Hook im korrekten Namespace
@@ -159,8 +159,9 @@ namespace GOTHIC_NAMESPACE {
     void Game_DefineExternals() {}
     void Game_ApplyOptions() {}
 
-    // Registrierung als C++ Standard ohne Proprietäre Makros
-    CApplication* lpApplication = (GetGameVersion() == ENGINE) ? CApplication::CreateRefApplication(
+    // Registrierung als natives C++ ohne VS-Makros. 
+    // Wird nur geladen, wenn die gebaute DLL-Version mit der aktiven Engine übereinstimmt.
+    CApplication* lpApplication = (Union::GetEngineVersion() == ENGINE) ? CApplication::CreateRefApplication(
         Game_Entry, Game_Init, Game_Exit, Game_PreLoop, Game_Loop, Game_PostLoop, Game_MenuLoop,
         Game_SaveBegin, Game_SaveEnd, Game_LoadBegin_NewGame, Game_LoadEnd_NewGame,
         Game_LoadBegin_SaveGame, Game_LoadEnd_SaveGame, Game_LoadBegin_ChangeLevel,
