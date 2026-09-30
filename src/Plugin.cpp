@@ -48,7 +48,7 @@ namespace GOTHIC_NAMESPACE {
     HOOKSPACE(GOTHIC_NAMESPACE, GetGameVersion() == ENGINE);
 
     // ==========================================================
-    // 1. SCHADENSBERECHNUNG (Die absolute Wurzel!)
+    // 1. SCHADENSBERECHNUNG (OnDamage Root Hook)
     // ==========================================================
     // Da oCNpc::OnDamage überladen ist, nutzen wir einen static_cast, um den 
     // Pointer auf die exakte Signatur (mit oSDamageDescriptor) zu zwingen.
@@ -125,20 +125,67 @@ namespace GOTHIC_NAMESPACE {
         LogDebug("=== Ende OnDamage_Hit ===");
     }
 
-    void App_Init() {
-        // Beim Start einmalig prüfen, ob wir den Debug-Text triggern können
+    // ==========================================================
+    // 2. OBLIGATORISCHES UNION-LIFECYCLE-GERÜST
+    // ==========================================================
+    void Game_Entry() {}
+    
+    void Game_Init() {
+        // Hier feuern wir unser Log! Wenn das im zSpy auftaucht, laeuft die DLL!
         zerr.Message("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         zerr.Message("!!! UNION MINIMUM DAMAGE DLL WURDE GELADEN !!!");
         zerr.Message("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
-    }
+    
+    void Game_Exit() {}
+    void Game_PreLoop() {}
+    void Game_Loop() {}
+    void Game_PostLoop() {}
+    void Game_MenuLoop() {}
+    void Game_SaveBegin() {}
+    void Game_SaveEnd() {}
+    void LoadBegin() {}
+    void LoadEnd() {}
+    void Game_LoadBegin_NewGame() {}
+    void Game_LoadEnd_NewGame() {}
+    void Game_LoadBegin_SaveGame() {}
+    void Game_LoadEnd_SaveGame() {}
+    void Game_LoadBegin_ChangeLevel() {}
+    void Game_LoadEnd_ChangeLevel() {}
+    void Game_LoadBegin_Trigger() {}
+    void Game_LoadEnd_Trigger() {}
+    void Game_Pause() {}
+    void Game_Unpause() {}
+    void Game_DefineExternals() {}
+    void Game_ApplyOptions() {}
 
-    cInitApp Documents_Init(App_Init);
+    // Dies registriert die Mod tief in der Union-Engine. Ohne diesen Block lädt nichts!
+    #define AppDefault True
+    CApplication* lpApplication = !CHECK_THIS_ENGINE ? Null : CApplication::CreateRefApplication(
+        Enabled( AppDefault ) Game_Entry,
+        Enabled( AppDefault ) Game_Init,
+        Enabled( AppDefault ) Game_Exit,
+        Enabled( AppDefault ) Game_PreLoop,
+        Enabled( AppDefault ) Game_Loop,
+        Enabled( AppDefault ) Game_PostLoop,
+        Enabled( AppDefault ) Game_MenuLoop,
+        Enabled( AppDefault ) Game_SaveBegin,
+        Enabled( AppDefault ) Game_SaveEnd,
+        Enabled( AppDefault ) Game_LoadBegin_NewGame,
+        Enabled( AppDefault ) Game_LoadEnd_NewGame,
+        Enabled( AppDefault ) Game_LoadBegin_SaveGame,
+        Enabled( AppDefault ) Game_LoadEnd_SaveGame,
+        Enabled( AppDefault ) Game_LoadBegin_ChangeLevel,
+        Enabled( AppDefault ) Game_LoadEnd_ChangeLevel,
+        Enabled( AppDefault ) Game_LoadBegin_Trigger,
+        Enabled( AppDefault ) Game_LoadEnd_Trigger,
+        Enabled( AppDefault ) Game_Pause,
+        Enabled( AppDefault ) Game_Unpause,
+        Enabled( AppDefault ) Game_DefineExternals,
+        Enabled( AppDefault ) Game_ApplyOptions
+    );
 }
 
 #undef GOTHIC_NAMESPACE
 #undef ENGINE
 #endif
-
-// Globaler Fallback für Union-Initialisierung
-HOOKSPACE(Global, true);
